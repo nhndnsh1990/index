@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>見積書送付前チェックリスト</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark: #085041;
+      --green-mid: #1D9E75;
+      --green-light: #E1F5EE;
+      --green-border: #5DCAA5;
+      --ink: #1a1a1a;
+      --ink-muted: #6b6b6b;
+      --surface: #f7f6f3;
+      --card: #ffffff;
+      --border: #e0ddd6;
+      --danger: #c0392b;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--surface);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: var(--ink);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .label-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--green-dark);
+      background: var(--green-light);
+      border: 1px solid var(--green-border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    .label-tag::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green-mid);
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.7;
+    }
+
+    .progress-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .progress-text {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    .progress-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green-dark);
+    }
+
+    .track {
+      height: 5px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: var(--green-mid);
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem; }
+
+    .check-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.1s;
+      user-select: none;
+    }
+
+    .check-card:hover { border-color: #c5c2b8; transform: translateY(-1px); }
+    .check-card:active { transform: translateY(0); }
+
+    .check-card.checked {
+      background: var(--green-light);
+      border-color: var(--green-border);
+    }
+
+    .box {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .check-card.checked .box {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
+    }
+
+    .check-svg { display: none; }
+    .check-card.checked .check-svg { display: block; }
+
+    .text-block { flex: 1; }
+
+    .item-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--ink-muted);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+
+    .check-card.checked .item-num { color: var(--green-dark); }
+
+    .item-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    .check-card.checked .item-label { color: var(--green-dark); }
+
+    .input-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      transition: border-color 0.2s;
+    }
+
+    .input-card.filled { border-color: var(--green-border); background: var(--green-light); }
+
+    .input-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+
+    .input-card .item-num { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; color: var(--ink-muted); margin-bottom: 3px; text-transform: uppercase; }
+    .input-card.filled .item-num { color: var(--green-dark); }
+    .input-card .item-label { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.55; }
+    .input-card.filled .item-label { color: var(--green-dark); }
+
+    .field-wrap { display: flex; flex-direction: column; gap: 8px; }
+
+    .field-label { font-size: 12px; color: var(--ink-muted); font-weight: 500; }
+    .input-card.filled .field-label { color: var(--green-dark); opacity: 0.8; }
+
+    .field-input {
+      width: 100%;
+      padding: 9px 12px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .field-input:focus { border-color: var(--green-mid); background: #fff; }
+    .input-card.filled .field-input { background: #fff; border-color: var(--green-border); }
+
+    .status-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .input-card.filled .status-dot { background: var(--green-mid); border-color: var(--green-mid); }
+    .dot-check { display: none; }
+    .input-card.filled .dot-check { display: block; }
+
+    .warning-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: #fef5f5;
+      border: 1px solid #f5c6c6;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--danger);
+      margin-bottom: 1rem;
+    }
+
+    .warning-banner.show { display: flex; }
+
+    .send-btn {
+      width: 100%;
+      padding: 14px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 10px;
+      border: none;
+      background: var(--border);
+      color: var(--ink-muted);
+      cursor: not-allowed;
+      transition: background 0.25s, color 0.25s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .send-btn.active {
+      background: var(--green-dark);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .send-btn.active:hover { background: #0a6352; }
+    .send-btn.active:active { transform: scale(0.98); }
+
+    .success-msg {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: var(--green-light);
+      border: 1px solid var(--green-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--green-dark);
+      margin-top: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .success-msg.show { display: flex; }
+
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--ink-muted);
+      margin-top: 1.5rem;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 19px; }
+      .check-card { padding: 14px 15px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <div class="label-tag">送付前確認</div>
+    <h1>見積書送付前チェックリスト</h1>
+    <p class="description">お客様へ見積書を送付する前に、以下の6項目をすべて確認してください。<br>全項目にチェックが入ると送信ボタンが有効になります。</p>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-top">
+      <span class="progress-text">確認の進捗</span>
+      <span class="progress-count" id="count-label">0 / 6</span>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <div class="warning-banner" id="warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    未確認の項目があります。全項目を確認してから送信してください。
+  </div>
+
+  <div class="cards">
+
+    <div class="check-card" id="c1" onclick="toggle('c1')">
+      <div class="box">
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <polyline points="2,7 5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="text-block">
+        <div class="item-num">ITEM 01</div>
+        <div class="item-label">文面の宛名と、送付先のメールアドレスは同じ人物になっているか</div>
+      </div>
+    </div>
+
+    <div class="check-card" id="c2" onclick="toggle('c2')">
+      <div class="box">
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <polyline points="2,7 5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="text-block">
+        <div class="item-num">ITEM 02</div>
+        <div class="item-label">CCに無関係な人物が含まれていないか</div>
+      </div>
+    </div>
+
+    <div class="check-card" id="c3" onclick="toggle('c3')">
+      <div class="box">
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <polyline points="2,7 5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="text-block">
+        <div class="item-num">ITEM 03</div>
+        <div class="item-label">添付されている見積書は、間違いなくお客様に提出する見積書か<br><span style="font-size:12px;font-weight:400;color:inherit;opacity:0.75;">（仕入先からの見積書ではないか）</span></div>
+      </div>
+    </div>
+
+    <div class="check-card" id="c4" onclick="toggle('c4')">
+      <div class="box">
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <polyline points="2,7 5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="text-block">
+        <div class="item-num">ITEM 04</div>
+        <div class="item-label">他に合わせて添付すべき資料はないか</div>
+      </div>
+    </div>
+
+    <div class="check-card" id="c5" onclick="toggle('c5')">
+      <div class="box">
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <polyline points="2,7 5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="text-block">
+        <div class="item-num">ITEM 05</div>
+        <div class="item-label">メールに添付された見積書をクリックして内容を確認したか</div>
+      </div>
+    </div>
+
+    <div class="input-card" id="c6">
+      <div class="input-row">
+        <div class="status-dot">
+          <svg class="dot-check" width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <polyline points="2,7 5,10 11,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="text-block">
+          <div class="item-num">ITEM 06</div>
+          <div class="item-label">送付情報の記入</div>
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div>
+          <div class="field-label">宛先名</div>
+          <input class="field-input" id="f-name" type="text" placeholder="例：山田 太郎 様" oninput="updateInputCard()">
+        </div>
+        <div>
+          <div class="field-label">何に関する見積書か</div>
+          <input class="field-input" id="f-subject" type="text" placeholder="例：〇〇システム導入に関する見積書" oninput="updateInputCard()">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="send-btn" id="send-btn" onclick="handleSend()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    すべて確認済み — メールを送信する
+  </button>
+
+  <div class="success-msg" id="success">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    送信準備が整いました。メールソフトにて送信してください。
+  </div>
+
+  <p class="footer-note">このチェックリストはメール送信前の確認用ツールです。<br>送信操作はお使いのメールソフトで行ってください。</p>
+
+</div>
+
+<script>
+  const state = { c1: false, c2: false, c3: false, c4: false, c5: false };
+  let inputFilled = false;
+
+  function toggle(id) {
+    state[id] = !state[id];
+    document.getElementById(id).classList.toggle('checked', state[id]);
+    update();
+  }
+
+  function updateInputCard() {
+    const name = document.getElementById('f-name').value.trim();
+    const subject = document.getElementById('f-subject').value.trim();
+    inputFilled = name.length > 0 && subject.length > 0;
+    document.getElementById('c6').classList.toggle('filled', inputFilled);
+    update();
+  }
+
+  function update() {
+    const checked = Object.values(state).filter(Boolean).length + (inputFilled ? 1 : 0);
+    document.getElementById('count-label').textContent = checked + ' / 6';
+    document.getElementById('fill').style.width = (checked / 6 * 100) + '%';
+    const allDone = checked === 6;
+    const btn = document.getElementById('send-btn');
+    btn.classList.toggle('active', allDone);
+    document.getElementById('warn').classList.remove('show');
+    if (allDone) {
+      document.getElementById('success').classList.add('show');
+    } else {
+      document.getElementById('success').classList.remove('show');
+    }
+  }
+
+  function handleSend() {
+    const checked = Object.values(state).filter(Boolean).length + (inputFilled ? 1 : 0);
+    if (checked < 6) {
+      document.getElementById('warn').classList.add('show');
+    }
+  }
+</script>
+
+</body>
+</html>
